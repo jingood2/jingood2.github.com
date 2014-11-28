@@ -15,7 +15,7 @@ author :
   name : jingood2
   email : jingood2@gmail.com
   github : jingood2
-  twitter : @jingood2
+#  twitter : @jingood2
   feedburner : feedname
 
 # The production_url is only used when full-domain names are needed
