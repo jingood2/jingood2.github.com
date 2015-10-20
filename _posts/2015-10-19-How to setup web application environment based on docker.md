@@ -75,15 +75,15 @@ Status: inactive
 
 변경한 ssh port를 열어줍니다. 그리고 기본적으로 모든 incoming 요청은 막고, outgoing 요청은 허용하도록 변경합니다.
 
-```bash
+~~~bash
 $ sudo ufw allow 3322/tcp
 $ sudo ufw deny incoming
 $ sudo ufw allow outgoing
-```
+~~~
 
 기본 방화벽 설정이 완료되었으면 ufw를 활성화 시킵니다.
 
-```bash
+~~~bash
 $ sudo ufw enable
 $ sudo ufw status
 Status: active
@@ -92,60 +92,79 @@ To                         Action      From
 --                         ------      ----
 3322/tcp                   ALLOW       Anywhere
 3322/tcp (v6)              ALLOW       Anywhere (v6)
-```
+~~~
 
 ### Docker 및 Docker compose 설치
 Docker Host 설치가 완료되었으면 이제 Docker 및 Docker compose를 설치합니다.
 [docker](https://docs.docker.com/installation/ubuntulinux/) 링크를 참조하여 해당하는 OS에 해당하는 설치방법에 따라 docker 및 compose를 설치합니다.
 
 docker를 설치합니다.
-```bash
+~~~bash
 $ wget -qO- https://get.docker.com/ | sh
-```
+~~~ 
 docker가 설치되었으면 이제 여러 컨테이너들을 한번에 구성해서 설치하는데 편한 [docker-compose](https://docs.docker.com/compose/install/)를 설치합니다.
 
-```bash
+~~~bash
 $ curl -L https://github.com/docker/compose/releases/download/1.4.2/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
 
 $ chmod +x /usr/local/bin/docker-compose
 
 $ docker-compose --version
 docker-compose version: 1.4.2
-```
+~~~ 
 
 $ docker를 사용자 그룹계정에 추가합니다.
 
-```bash
-$ sudo usermod -aG docker ubuntu
+~~~bash
+$ sudo usermod -aG docker player
 
-```
+~~~ 
 
 로그 아웃한 후에 docker 설치가 제대로 됐는지 확인합니다. 
 
-```bash
+~~~bash
 $ docker run hello-world
 player@RNNPDEVTEST:~$ docker run hello-world
 
 Hello from Docker.
 This message shows that your installation appears to be working correctly.
-
-To generate this message, Docker took the following steps:
- 1. The Docker client contacted the Docker daemon.
- 2. The Docker daemon pulled the "hello-world" image from the Docker Hub.
- 3. The Docker daemon created a new container from that image which runs the
-    executable that produces the output you are currently reading.
- 4. The Docker daemon streamed that output to the Docker client, which sent it
-    to your terminal.
-
-To try something more ambitious, you can run an Ubuntu container with:
- $ docker run -it ubuntu bash
-
+...
 Share images, automate workflows, and more with a free Docker Hub account:
  https://hub.docker.com
 
 For more examples and ideas, visit:
  https://docs.docker.com/userguide/
-```
+~~~
+
+부팅시에 docker가 시작될 수 있도록 아래와 같이 설정합니다.
+
+~~~bash
+$ sudo update-rc.d docker defaults
+~~~
+
+마지막으로 다른 host에서 docker container에 접근할 수 있도록  docker port 2375를 방화벽에서 허용하도록 합니다. 먼저 기본 방화벽 정책을 아래와 같이 수정합니다.
+
+~~~bash
+$ sudo vim /etc/default/ufw
+~~~
+
+*DEFAULT_FORWARD_POLICY* 값을 *DENY*에서 *ACCEPT*로 변경합니다.
+
+~~~vim
+DEFAULT_FORWARD_POLICY="ACCEPT"
+~~~
+
+변경된 ufw 설정을 다시 적용합니다.
+~~~bash
+$ sudo ufw reload
+~~~
+
+Docker 포트 2375 요청 연결을 허용합니다. 
+~~~bash
+$ sudo ufw allow 2375/tcp
+~~~
+
+## docker containers architecture
 
 
 
