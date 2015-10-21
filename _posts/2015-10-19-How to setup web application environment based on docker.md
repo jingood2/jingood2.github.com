@@ -169,24 +169,30 @@ $ sudo ufw allow 2375/tcp
 ***
 
 ## Docker Architecture
-웹 어플리케이션을 서비스하기 위해 필요한 전체 콤포넌트 아키텍쳐입니다. 각각의 컨테이너는 단일 목적으로 구동되는 마이크로 서비스이고, 서로 독립적이기 때문에 다른 마이크로 서비스에 영향을 주지 않습니다. 그리고 필요에 따라 인스턴스를 scale out할 수 있습니다.
+웹 어플리케이션을 서비스하기 위해 필요한 전체 콤포넌트 아키텍쳐입니다. 각각의 컨테이너는 단일 목적으로 구동되는 마이크로 서비스이고, 서로 독립적이기 때문에 다른 마이크로 서비스에 영향을 주지 않습니다. 그리고 필요에 따라 인스턴스를 scale out할 수 있습니다. 서비스를 위해 필요한 전체 컨테이너 아키텍처는 다음과 같습니다.
+
+![](http://imgur.com/AFUSvGS)
+
+
 웹 어플리케이션을 서비스하기 위해 필요한 콤포넌트는 아래와 같습니다.
 
 
-### reverse proxy
-외부에서 유입되는 요청은 80 포트를 통해서만 유입되며 reverse proxy인 nginx가 내부적으로 해당 컨테이너로 redirect 하도록 합니다. 
+### nginx reverse proxy
+외부에서 유입되는 요청은 80 포트를 통해서만 유입되며 reverse proxy인 nginx가 내부적으로 해당 컨테이너로 redirect 하도록 합니다.
 
-- www.example.com:80 => 내부적으로 8081 포트를 listen하고 있는 web server로 redirect합니다.
-- www.example.com:80/api => 내부적으로 3001 포트를 listen하고 있는 REST API 서버로 redirect 합니다.
+- www.example.com:80 => 내부적으로 8081 포트를 listen하고 있는 website로 redirect하기 위해 docker link를 추가합니다.
+- www.example.com:80/api => 내부적으로 3001 포트를 listen하고 있는 REST API 서버로 redirect 통신을 위해 docker link를 추가합니다.
+
+### nginx static website
+reverse proxy와 link로 연결되었기 때문에 둘 사이에는 통신이 가능합니다. host의 /data/docker/html 디렉토리를 생성합니다. 이 위치에 실제 website의 파일들을 복사되며 container 내에서는 /var/www/html로 마운트합니다.
+### REST API
+REST API 서버는 data persistence를 위해 mongodb와 redis와 연결되어야 합니다. 
+따라서 mongodb와 redis에 대한 docker link를 추가합니다. 
 
 
-### web server for homepage
-
-### strong-pm container
-
-### mongoDB container
-
-### redis container
+### mongoDB
+mongdb는 내부적으로 REST API 서버하고만 link로 연결되어 있기 때문에 외부와 차단됩니다. 
+### Redis 
 
 ### Logs
 여러 컨테이너에서 생성되는 로그를 
